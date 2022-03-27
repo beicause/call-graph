@@ -19,7 +19,36 @@
 				"command": "CallGraph.showCallGraph",
 				"title": "CallGraph: show call graph"
 			}
-		]
+		],
+		"menus": {
+			"editor/context": [
+				{
+					"command": "CallGraph.showCallGraph"
+				}
+			]
+		},
+		"configuration": {
+			"title": "CallGraph",
+			"properties": {
+				"call-graph.dotDir":{
+					"type":"string",
+					"description": "the dir where .dot file will generate"
+				},
+				"call-graph.server.enable":{
+					"type":"boolean",
+					"default":true,
+					"description": "whether to enable web server for previewing .dot file"
+				},
+				"call-graph.server.port": {
+					"type": "number",
+					"default": 8911
+				},
+				"call-graph.server.host":{
+					"type":"string",
+					"default":"127.0.0.1"
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",
