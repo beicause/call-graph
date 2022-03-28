@@ -17,7 +17,6 @@
 <script>
     (async function () {
         const res =await (await fetch('/graph_data.dot')).text()
-        console.log(res)
         d3.select('#app').graphviz().renderDot(res)
     })()
 </script>

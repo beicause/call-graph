@@ -2,6 +2,7 @@ import { CallHierarchyNode } from "./call"
 import * as fs from 'fs'
 import { isDeepStrictEqual } from "util"
 import path = require("path")
+import { output } from "./extension"
 
 export function generateDot(graph: CallHierarchyNode, filePath?: string) {
     const dot = new Graph()
@@ -21,28 +22,34 @@ export function generateDot(graph: CallHierarchyNode, filePath?: string) {
 
     const insertNode = (n: Node, c: CallHierarchyNode) => {
         set.add(n)
-        if (c.children.length > 0) c.children.forEach(child => {
+        for (const child of c.children) {
             const next = getNode(child)
+            let isSkip = false
             for (const s of set) {
-                if (isDeepStrictEqual(s, next)) {
+                if (isEqual(s, next)) {
                     n.next.push(s)
-                    return
+                    isSkip = true
                 }
             }
+            if (isSkip) continue
             n.next.push(next)
             insertNode(next, child)
-        })
+        }
     }
     insertNode(node, graph)
     dot.addNode(node)
     const f = path.resolve(__dirname, '../static/graph_data.dot')
     fs.writeFileSync(f, dot.toString())
-    console.log('generate dot file: ', f)
+    output.appendLine('generate dot file: '+ f)
     if (filePath) {
         fs.writeFileSync(filePath, dot.toString())
-        console.log('copy: ',filePath);
+        output.appendLine('copy the dot file: ' + filePath);
     }
     return dot
+}
+
+function isEqual(a: Node, b: Node) {
+    return a.name === b.name && isDeepStrictEqual(a.attr, b.attr) && isDeepStrictEqual(a.subgraph, b.subgraph)
 }
 
 type Attr = Record<string, string> & { title?: string, label?: string, shape?: string, style?: string, color?: string }
