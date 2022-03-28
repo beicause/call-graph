@@ -37,8 +37,11 @@ export function generateDot(graph: CallHierarchyNode, filePath?: string) {
     dot.addNode(node)
     const f = path.resolve(__dirname, '../static/graph_data.dot')
     fs.writeFileSync(f, dot.toString())
-    filePath && fs.writeFileSync(filePath, dot.toString())
-    console.log('generate dot file successfully: ', f)
+    console.log('generate dot file: ', f)
+    if (filePath) {
+        fs.writeFileSync(filePath, dot.toString())
+        console.log('copy: ',filePath);
+    }
     return dot
 }
 
