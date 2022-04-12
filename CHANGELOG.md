@@ -1,9 +1,10 @@
 # Change Log
 
-All notable changes to the "call-graph" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [1.0.0]
+## [1.0.0] 2022-3-28
 
 - Initial release
+
+## [1.1.0] 2022-4-12
+
+- use webview panel instead of browser for previewing, so many configs are removed.
+- support saving svg and dot file to workspace.
