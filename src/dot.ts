@@ -1,23 +1,25 @@
 import { CallHierarchyNode } from "./call"
 import * as fs from 'fs'
+import * as vscode from 'vscode'
 import { isDeepStrictEqual } from "util"
-import path = require("path")
+import * as path from "path"
 import { output } from "./extension"
 
-export function generateDot(graph: CallHierarchyNode, filePath?: string) {
+export function generateDot(graph: CallHierarchyNode) {
     const dot = new Graph()
+    const root = vscode.workspace.workspaceFolders?.[0].uri.toString()??''
     dot.addAttr({ rankdir: "LR" })
     const getNode = (n: CallHierarchyNode) => {
         return {
             name: `"${n.item.uri}#${n.item.name}@${n.item.range.start.line}:${n.item.range.start.character}"`,
             attr: { label: n.item.name },
-            subgraph: { name: n.item.uri.toString(), attr: { label: n.item.uri.toString() } },
+            subgraph: { name: n.item.uri.toString(), attr: { label: n.item.uri.toString().replace(root,'${workspace}') } },
             next: []
         } as Node
     }
     const node = getNode(graph)
-    node.attr!.color = "green"
-    node.attr!.style = "filled"
+    // node.attr!.color = "green"
+    // node.attr!.style = "filled"
     const set = new Set<Node>()
 
     const insertNode = (n: Node, c: CallHierarchyNode) => {
@@ -41,10 +43,6 @@ export function generateDot(graph: CallHierarchyNode, filePath?: string) {
     const f = path.resolve(__dirname, '../static/graph_data.dot')
     fs.writeFileSync(f, dot.toString())
     output.appendLine('generate dot file: '+ f)
-    if (filePath) {
-        fs.writeFileSync(filePath, dot.toString())
-        output.appendLine('copy the dot file: ' + filePath);
-    }
     return dot
 }
 

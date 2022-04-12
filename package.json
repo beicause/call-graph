@@ -11,7 +11,8 @@
 		"Visualization"
 	],
 	"activationEvents": [
-		"onCommand:CallGraph.showCallGraph"
+		"onCommand:CallGraph.showCallGraph",
+		"onWebviewPanel:CallGraph.preview"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -27,33 +28,6 @@
 					"command": "CallGraph.showCallGraph"
 				}
 			]
-		},
-		"configuration": {
-			"title": "CallGraph",
-			"properties": {
-				"call-graph.dotDir":{
-					"type":"string",
-					"description": "the dir where .dot file will generate"
-				},
-				"call-graph.server.enable":{
-					"type":"boolean",
-					"default":true,
-					"description": "whether to enable web server for previewing .dot file"
-				},
-				"call-graph.server.open": {
-					"type":"boolean",
-					"default":true,
-					"description": "whether to open browser automatically"
-				},
-				"call-graph.server.port": {
-					"type": "number",
-					"default": 8911
-				},
-				"call-graph.server.host":{
-					"type":"string",
-					"default":"127.0.0.1"
-				}
-			}
 		}
 	},
 	"scripts": {
@@ -77,23 +51,19 @@
 		"mocha": "^9.2.2",
 		"typescript": "^4.5.5"
 	},
-	"dependencies": {
-		"connect": "^3.7.0",
-		"sirv": "^2.0.2"
-	},
 	"repository": {
-        "type": "git",
-        "url": "https://github.com/beicause/call-graph.git"
-    },
-    "license": "MIT",
-    "icon": "images/call-graph.png",
-    "bugs": {
-        "url": "https://github.com/beicause/call-graph/issues"
-    },
-    "homepage": "https://github.com/beicause/call-graph/blob/master/README.md",
-    "keywords": [
-        "graphviz",
-        "call graph",
-        "dot"
-    ]
+		"type": "git",
+		"url": "https://github.com/beicause/call-graph.git"
+	},
+	"license": "MIT",
+	"icon": "images/call-graph.png",
+	"bugs": {
+		"url": "https://github.com/beicause/call-graph/issues"
+	},
+	"homepage": "https://github.com/beicause/call-graph/blob/master/README.md",
+	"keywords": [
+		"graphviz",
+		"call graph",
+		"dot"
+	]
 }
