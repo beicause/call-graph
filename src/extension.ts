@@ -11,6 +11,31 @@ export function activate(context: vscode.ExtensionContext) {
 	const staticDir = path.resolve(context.extensionPath, 'static')
 	const workspace = vscode.workspace.workspaceFolders?.[0].uri!
 	const dotFile = path.resolve(staticDir, 'graph_data.dot')
+	const onReceiveMsg=(msg:any) => {
+		const workspacePath = (s: string) => path.resolve(workspace.path, s)
+		const existed = () => {
+			vscode.window.showErrorMessage(`fail to save. file 'call_graph.{dot,svg}' already exists`)
+		}
+		if (msg.command === 'download') {
+			let f = ''
+			switch (msg.type) {
+				case 'dot':
+					f = workspacePath('call_graph.dot')
+					if (!fs.existsSync(f)) {
+						fs.copyFileSync(dotFile, f)
+						vscode.window.showInformationMessage(f)
+					} else existed()
+					break
+				case 'svg':
+					f = workspacePath('call_graph.svg')
+					if (!fs.existsSync(f)) {
+						fs.writeFileSync(f, msg.data)
+						vscode.window.showInformationMessage(f)
+					} else existed()
+					break
+			}
+		}
+	}
 	const disposable = vscode.commands.registerCommand('CallGraph.showCallGraph', async () => {
 		vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: 'Call Graph: generate call graph', cancellable: false }, async () => {
 			const activeTextEditor = vscode.window.activeTextEditor!
@@ -35,31 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
 			)
 			const dotFileUri = panel.webview.asWebviewUri(vscode.Uri.file(dotFile)).toString()
 			panel.webview.html = getHtmlContent(dotFileUri)
-			panel.webview.onDidReceiveMessage(msg => {
-				const workspacePath = (s: string) => path.resolve(workspace.path, s)
-				const existed = () => {
-					vscode.window.showErrorMessage(`fail to save. file 'call_graph.{dot,svg}' already exists`)
-				}
-				if (msg.command === 'download') {
-					let f = ''
-					switch (msg.type) {
-						case 'dot':
-							f = workspacePath('call_graph.dot')
-							if (!fs.existsSync(f)) {
-								fs.copyFileSync(dotFile, f)
-								vscode.window.showInformationMessage(f)
-							} else existed()
-							break
-						case 'svg':
-							f = workspacePath('call_graph.svg')
-							if (!fs.existsSync(f)) {
-								fs.writeFileSync(f, msg.data)
-								vscode.window.showInformationMessage(f)
-							} else existed()
-							break
-					}
-				}
-			})
+			panel.webview.onDidReceiveMessage(onReceiveMsg)
 		})
 	})
 
@@ -70,6 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
 				return
 			}
 			webviewPanel.webview.html = getHtmlContent(state)
+			webviewPanel.webview.onDidReceiveMessage(onReceiveMsg)
 		}
 	})
 
