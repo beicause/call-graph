@@ -57,7 +57,7 @@
 		"url": "https://github.com/beicause/call-graph.git"
 	},
 
-	"license": "Apache2.0",
+	"license": "Apache",
 	"icon": "images/call-graph.png",
 	"bugs": {
 		"url": "https://github.com/beicause/call-graph/issues"

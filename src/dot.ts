@@ -5,7 +5,7 @@ import { isDeepStrictEqual } from "util"
 import * as path from "path"
 import { output } from "./extension"
 
-export function generateDot(graph: CallHierarchyNode) {
+export function generateDot(graph: CallHierarchyNode,path:string) {
     const dot = new Graph()
     const root = vscode.workspace.workspaceFolders?.[0].uri.toString()??''
     dot.addAttr({ rankdir: "LR" })
@@ -40,9 +40,8 @@ export function generateDot(graph: CallHierarchyNode) {
     }
     insertNode(node, graph)
     dot.addNode(node)
-    const f = path.resolve(__dirname, '../static/graph_data.dot')
-    fs.writeFileSync(f, dot.toString())
-    output.appendLine('generate dot file: '+ f)
+    fs.writeFileSync(path, dot.toString())
+    output.appendLine('generate dot file: '+ path)
     return dot
 }
 
