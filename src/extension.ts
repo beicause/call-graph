@@ -9,6 +9,7 @@ export const output = vscode.window.createOutputChannel('CallGraph')
 
 export function activate(context: vscode.ExtensionContext) {
     const staticDir = path.resolve(context.extensionPath, 'static')
+    if(!fs.existsSync(staticDir))fs.mkdirSync(staticDir)
     const workspace = vscode.workspace.workspaceFolders?.[0].uri!
     const dotFile = vscode.Uri.file(path.resolve(staticDir, 'graph_data.dot'))
     const onReceiveMsg = (msg: any) => {
@@ -16,12 +17,19 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage(`Already exists.\n${p} `)
 
         if (msg.command === 'download') {
-            let f = workspace
+            const dir = vscode.workspace
+                .getConfiguration()
+                .get<string>('call-graph.saveDir')
+                ?.replace('${workspace}', workspace.fsPath)
+            let f = dir ? vscode.Uri.file(dir) : workspace
+            if (!fs.existsSync(f.fsPath))
+                fs.mkdirSync(f.fsPath, { recursive: true })
+
             switch (msg.type) {
                 case 'dot':
                     f = vscode.Uri.joinPath(f, 'call_graph.dot')
                     if (!fs.existsSync(f.fsPath)) {
-                        vscode.workspace.fs.copy(dotFile, f)
+                        fs.copyFileSync(dotFile.fsPath, f.fsPath)
                         vscode.window.showInformationMessage(f.fsPath)
                     } else existed(f.fsPath)
                     break

@@ -10,3 +10,4 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 .history
+static/**

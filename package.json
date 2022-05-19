@@ -1,71 +1,79 @@
 {
-	"name": "call-graph",
-	"displayName": "Call Graph",
-	"description": "call graph for vscode",
-	"version": "1.1.0",
-	"publisher": "LuoZhihao",
-	"engines": {
-		"vscode": "^1.65.0"
-	},
-	"categories": [
-		"Visualization"
-	],
-	"activationEvents": [
-		"onCommand:CallGraph.showCallGraph",
-		"onWebviewPanel:CallGraph.preview"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "CallGraph.showCallGraph",
-				"title": "CallGraph: show call graph"
-			}
-		],
-		"menus": {
-			"editor/context": [
-				{
-					"command": "CallGraph.showCallGraph"
-				}
-			]
-		}
-	},
-	"scripts": {
-		"vscode:prepublish": "yarn run compile && rimraf static/graph_data.dot",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"pretest": "yarn run compile && yarn run lint",
-		"lint": "eslint src --ext ts",
-		"test": "node ./out/test/runTest.js"
-	},
-	"devDependencies": {
-		"@types/glob": "^7.2.0",
-		"@types/mocha": "^9.1.0",
-		"@types/node": "14.x",
-		"@types/vscode": "^1.65.0",
-		"@typescript-eslint/eslint-plugin": "^5.16.0",
-		"@typescript-eslint/parser": "^5.16.0",
-		"@vscode/test-electron": "^2.1.3",
-		"eslint": "^8.11.0",
-		"glob": "^7.2.0",
-		"mocha": "^9.2.2",
-		"rimraf": "^3.0.2",
-		"typescript": "^4.5.5"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/beicause/call-graph.git"
-	},
-
-	"license": "Apache",
-	"icon": "images/call-graph.png",
-	"bugs": {
-		"url": "https://github.com/beicause/call-graph/issues"
-	},
-	"homepage": "https://github.com/beicause/call-graph/blob/master/README.md",
-	"keywords": [
-		"graphviz",
-		"call graph",
-		"dot"
-	]
+    "name": "call-graph",
+    "displayName": "Call Graph",
+    "description": "call graph for vscode",
+    "version": "1.1.0",
+    "publisher": "LuoZhihao",
+    "engines": {
+        "vscode": "^1.65.0"
+    },
+    "categories": [
+        "Visualization"
+    ],
+    "activationEvents": [
+        "onCommand:CallGraph.showCallGraph",
+        "onWebviewPanel:CallGraph.preview"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "CallGraph.showCallGraph",
+                "title": "CallGraph: show call graph"
+            }
+        ],
+        "menus": {
+            "editor/context": [
+                {
+                    "command": "CallGraph.showCallGraph"
+                }
+            ]
+        },
+        "configuration": {
+            "title": "CallGraph",
+            "properties": {
+                "call-graph.saveDir": {
+                    "type": "string",
+                    "default": "${workspace}",
+                    "description": "the dir where svg and dot file will be saved"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "yarn run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "yarn run compile && yarn run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.2.0",
+        "@types/mocha": "^9.1.0",
+        "@types/node": "14.x",
+        "@types/vscode": "^1.65.0",
+        "@typescript-eslint/eslint-plugin": "^5.16.0",
+        "@typescript-eslint/parser": "^5.16.0",
+        "@vscode/test-electron": "^2.1.3",
+        "eslint": "^8.11.0",
+        "glob": "^7.2.0",
+        "mocha": "^9.2.2",
+        "typescript": "^4.5.5"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/beicause/call-graph.git"
+    },
+    "license": "Apache",
+    "icon": "images/call-graph.png",
+    "bugs": {
+        "url": "https://github.com/beicause/call-graph/issues"
+    },
+    "homepage": "https://github.com/beicause/call-graph/blob/master/README.md",
+    "keywords": [
+        "graphviz",
+        "call graph",
+        "dot"
+    ]
 }
