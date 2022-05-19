@@ -8,3 +8,8 @@
 
 - use webview panel instead of browser for previewing, so many configs are removed.
 - support saving svg and dot file to workspace.
+
+## [1.1.1] 2022-5-20
+
+- fix svg and dot file exporting on Windows([#3](https://github.com/beicause/call-graph/issues/3))
+- add config `call-graph.saveDir`
