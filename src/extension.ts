@@ -1,11 +1,62 @@
 import * as vscode from 'vscode'
-import { getCallNode } from './call'
+import { getIncomingCallNode, getOutgoingCallNode } from './call'
 import { generateDot } from './dot'
 import { getHtmlContent } from './html'
 import * as path from 'path'
 import * as fs from 'fs'
 
 export const output = vscode.window.createOutputChannel('CallGraph')
+
+const getDefaultProgressOptions = (title: string): vscode.ProgressOptions => {
+    return {
+        location: vscode.ProgressLocation.Notification,
+        title: title,
+        cancellable: false
+    }
+}
+
+const generateGraph = (
+    callNodeFunction: Function,
+    dotFile: vscode.Uri,
+    staticDir: string,
+    onReceiveMsg: any
+ ) => {
+    return async () => {
+        const activeTextEditor = vscode.window.activeTextEditor!
+        const entry: vscode.CallHierarchyItem[] =
+            await vscode.commands.executeCommand(
+                'vscode.prepareCallHierarchy',
+                activeTextEditor.document.uri,
+                activeTextEditor.selection.active
+            )
+        if (!entry || !entry[0]) {
+            const msg = "Can't resolve entry function"
+            vscode.window.showErrorMessage(msg)
+            throw new Error(msg)
+        }
+        const graph = await callNodeFunction(
+            vscode.workspace.workspaceFolders![0].uri.toString(),
+            entry[0]
+        )
+        generateDot(graph, dotFile.fsPath)
+
+        const panel = vscode.window.createWebviewPanel(
+            'CallGraph.preview',
+            'Call Graph',
+            vscode.ViewColumn.Beside,
+            {
+                localResourceRoots: [vscode.Uri.file(staticDir)],
+                enableScripts: true
+            }
+        )
+        const dotFileUri = panel.webview
+            .asWebviewUri(dotFile)
+            .toString()
+        panel.webview.html = getHtmlContent(dotFileUri)
+        panel.webview.onDidReceiveMessage(onReceiveMsg)
+    }
+}
+
 
 export function activate(context: vscode.ExtensionContext) {
     const staticDir = path.resolve(context.extensionPath, 'static')
@@ -43,49 +94,21 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
     }
-    const disposable = vscode.commands.registerCommand(
-        'CallGraph.showCallGraph',
+    const incomingDisposable = vscode.commands.registerCommand(
+        'CallGraph.showIncomingCallGraph',
         async () => {
             vscode.window.withProgress(
-                {
-                    location: vscode.ProgressLocation.Notification,
-                    title: 'Call Graph: generate call graph',
-                    cancellable: false
-                },
-                async () => {
-                    const activeTextEditor = vscode.window.activeTextEditor!
-                    const entry: vscode.CallHierarchyItem[] =
-                        await vscode.commands.executeCommand(
-                            'vscode.prepareCallHierarchy',
-                            activeTextEditor.document.uri,
-                            activeTextEditor.selection.active
-                        )
-                    if (!entry || !entry[0]) {
-                        const msg = "Call Graph: can't resolve entry function"
-                        vscode.window.showErrorMessage(msg)
-                        throw new Error(msg)
-                    }
-                    const graph = await getCallNode(
-                        vscode.workspace.workspaceFolders![0].uri.toString(),
-                        entry[0]
-                    )
-                    generateDot(graph, dotFile.fsPath)
-
-                    const panel = vscode.window.createWebviewPanel(
-                        'CallGraph.preview',
-                        'Call Graph',
-                        vscode.ViewColumn.Beside,
-                        {
-                            localResourceRoots: [vscode.Uri.file(staticDir)],
-                            enableScripts: true
-                        }
-                    )
-                    const dotFileUri = panel.webview
-                        .asWebviewUri(dotFile)
-                        .toString()
-                    panel.webview.html = getHtmlContent(dotFileUri)
-                    panel.webview.onDidReceiveMessage(onReceiveMsg)
-                }
+                getDefaultProgressOptions('Generate call graph'),
+                generateGraph(getIncomingCallNode, dotFile, staticDir, onReceiveMsg)
+            )
+        }
+    )
+    const outgoingDisposable = vscode.commands.registerCommand(
+        'CallGraph.showOutgoingCallGraph',
+        async () => {
+            vscode.window.withProgress(
+                getDefaultProgressOptions('Generate call graph'),
+                generateGraph(getOutgoingCallNode, dotFile, staticDir, onReceiveMsg)
             )
         }
     )
@@ -106,5 +129,6 @@ export function activate(context: vscode.ExtensionContext) {
         }
     })
 
-    context.subscriptions.push(disposable)
+    context.subscriptions.push(incomingDisposable)
+    context.subscriptions.push(outgoingDisposable)
 }
