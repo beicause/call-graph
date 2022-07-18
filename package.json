@@ -13,7 +13,8 @@
     "activationEvents": [
         "onCommand:CallGraph.showOutgoingCallGraph",
         "onCommand:CallGraph.showIncomingCallGraph",
-        "onWebviewPanel:CallGraph.preview"
+        "onWebviewPanel:CallGraph.previewIncoming",
+        "onWebviewPanel:CallGraph.previewOutgoing"
     ],
     "main": "./out/extension.js",
     "contributes": {
