@@ -1,7 +1,7 @@
 export function getHtmlContent(dot?:string){
     return `<!DOCTYPE html>
     <html lang="en">
-    
+
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,7 +10,7 @@ export function getHtmlContent(dot?:string){
         <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
         <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
     </head>
-    
+
     <body>
         <div id="app"></div>
         <div class="download">
@@ -26,8 +26,8 @@ export function getHtmlContent(dot?:string){
             const res =await (await fetch(dot)).text()
             d3.select('#app').graphviz().renderDot(res)
 
-            
-            
+
+
             d3.select('#downloadSvg').on('click',()=>{
                 const serializer = new XMLSerializer()
                 const svg = serializer.serializeToString(d3.select('svg').node())
@@ -48,7 +48,7 @@ export function getHtmlContent(dot?:string){
     </script>
     <style>
         .download{
-            position: absolute;
+            position: fixed;
             bottom: 0;
         }
     <style/>

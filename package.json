@@ -11,21 +11,30 @@
         "Visualization"
     ],
     "activationEvents": [
-        "onCommand:CallGraph.showCallGraph",
-        "onWebviewPanel:CallGraph.preview"
+        "onCommand:CallGraph.showOutgoingCallGraph",
+        "onCommand:CallGraph.showIncomingCallGraph",
+        "onWebviewPanel:CallGraph.previewIncoming",
+        "onWebviewPanel:CallGraph.previewOutgoing"
     ],
     "main": "./out/extension.js",
     "contributes": {
         "commands": [
             {
-                "command": "CallGraph.showCallGraph",
-                "title": "CallGraph: show call graph"
+                "command": "CallGraph.showOutgoingCallGraph",
+                "title": "CallGraph: Show outgoing call graph"
+            },
+            {
+                "command": "CallGraph.showIncomingCallGraph",
+                "title": "CallGraph: Show incoming call graph"
             }
         ],
         "menus": {
             "editor/context": [
                 {
-                    "command": "CallGraph.showCallGraph"
+                    "command": "CallGraph.showOutgoingCallGraph"
+                },
+                {
+                    "command": "CallGraph.showIncomingCallGraph"
                 }
             ]
         },

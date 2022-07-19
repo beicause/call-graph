@@ -1,5 +1,9 @@
 import * as vscode from 'vscode'
-import { getCallNode } from './call'
+import {
+    CallHierarchyNode,
+    getIncomingCallNode,
+    getOutgoingCallNode
+} from './call'
 import { generateDot } from './dot'
 import { getHtmlContent } from './html'
 import * as path from 'path'
@@ -7,90 +11,63 @@ import * as fs from 'fs'
 
 export const output = vscode.window.createOutputChannel('CallGraph')
 
-export function activate(context: vscode.ExtensionContext) {
-    const staticDir = path.resolve(context.extensionPath, 'static')
-    if(!fs.existsSync(staticDir))fs.mkdirSync(staticDir)
-    const workspace = vscode.workspace.workspaceFolders?.[0].uri!
-    const dotFile = vscode.Uri.file(path.resolve(staticDir, 'graph_data.dot'))
-    const onReceiveMsg = (msg: any) => {
-        const existed = (p: string) =>
-            vscode.window.showErrorMessage(`Already exists.\n${p} `)
-
-        if (msg.command === 'download') {
-            const dir = vscode.workspace
-                .getConfiguration()
-                .get<string>('call-graph.saveDir')
-                ?.replace('${workspace}', workspace.fsPath)
-            let f = dir ? vscode.Uri.file(dir) : workspace
-            if (!fs.existsSync(f.fsPath))
-                fs.mkdirSync(f.fsPath, { recursive: true })
-
-            switch (msg.type) {
-                case 'dot':
-                    f = vscode.Uri.joinPath(f, 'call_graph.dot')
-                    if (!fs.existsSync(f.fsPath)) {
-                        fs.copyFileSync(dotFile.fsPath, f.fsPath)
-                        vscode.window.showInformationMessage(f.fsPath)
-                    } else existed(f.fsPath)
-                    break
-                case 'svg':
-                    f = vscode.Uri.joinPath(f, 'call_graph.svg')
-                    if (!fs.existsSync(f.fsPath)) {
-                        fs.writeFileSync(f.fsPath, msg.data)
-                        vscode.window.showInformationMessage(f.fsPath)
-                    } else existed(f.fsPath)
-                    break
-            }
-        }
+const getDefaultProgressOptions = (title: string): vscode.ProgressOptions => {
+    return {
+        location: vscode.ProgressLocation.Notification,
+        title,
+        cancellable: false
     }
-    const disposable = vscode.commands.registerCommand(
-        'CallGraph.showCallGraph',
-        async () => {
-            vscode.window.withProgress(
-                {
-                    location: vscode.ProgressLocation.Notification,
-                    title: 'Call Graph: generate call graph',
-                    cancellable: false
-                },
-                async () => {
-                    const activeTextEditor = vscode.window.activeTextEditor!
-                    const entry: vscode.CallHierarchyItem[] =
-                        await vscode.commands.executeCommand(
-                            'vscode.prepareCallHierarchy',
-                            activeTextEditor.document.uri,
-                            activeTextEditor.selection.active
-                        )
-                    if (!entry || !entry[0]) {
-                        const msg = "Call Graph: can't resolve entry function"
-                        vscode.window.showErrorMessage(msg)
-                        throw new Error(msg)
-                    }
-                    const graph = await getCallNode(
-                        vscode.workspace.workspaceFolders![0].uri.toString(),
-                        entry[0]
-                    )
-                    generateDot(graph, dotFile.fsPath)
+}
 
-                    const panel = vscode.window.createWebviewPanel(
-                        'CallGraph.preview',
-                        'Call Graph',
-                        vscode.ViewColumn.Beside,
-                        {
-                            localResourceRoots: [vscode.Uri.file(staticDir)],
-                            enableScripts: true
-                        }
-                    )
-                    const dotFileUri = panel.webview
-                        .asWebviewUri(dotFile)
-                        .toString()
-                    panel.webview.html = getHtmlContent(dotFileUri)
-                    panel.webview.onDidReceiveMessage(onReceiveMsg)
-                }
+const generateGraph = (
+    type: 'Incoming' | 'Outgoing',
+    callNodeFunction: (
+        rootUri: string,
+        entryItem: vscode.CallHierarchyItem
+    ) => Promise<CallHierarchyNode>,
+    dotFile: vscode.Uri,
+    staticDir: string,
+    onReceiveMsg: (msg: any) => void
+) => {
+    return async () => {
+        const activeTextEditor = vscode.window.activeTextEditor!
+        const entry: vscode.CallHierarchyItem[] =
+            await vscode.commands.executeCommand(
+                'vscode.prepareCallHierarchy',
+                activeTextEditor.document.uri,
+                activeTextEditor.selection.active
             )
+        if (!entry || !entry[0]) {
+            const msg = "Can't resolve entry function"
+            vscode.window.showErrorMessage(msg)
+            throw new Error(msg)
         }
-    )
+        const graph = await callNodeFunction(
+            vscode.workspace.workspaceFolders![0].uri.toString(),
+            entry[0]
+        )
+        generateDot(graph, dotFile.fsPath)
 
-    vscode.window.registerWebviewPanelSerializer('CallGraph.preview', {
+        const webviewType = `CallGraph.preview${type}`
+        const panel = vscode.window.createWebviewPanel(
+            webviewType,
+            `Call Graph ${type}`,
+            vscode.ViewColumn.Beside,
+            {
+                localResourceRoots: [vscode.Uri.file(staticDir)],
+                enableScripts: true
+            }
+        )
+        const dotFileUri = panel.webview.asWebviewUri(dotFile).toString()
+        panel.webview.html = getHtmlContent(dotFileUri)
+        panel.webview.onDidReceiveMessage(onReceiveMsg)
+    }
+}
+const registerWebviewPanelSerializer = (
+    webViewType: string,
+    onReceiveMsg: (msg: any) => void
+) => {
+    vscode.window.registerWebviewPanelSerializer(webViewType, {
         async deserializeWebviewPanel(
             webviewPanel: vscode.WebviewPanel,
             state: string
@@ -105,6 +82,90 @@ export function activate(context: vscode.ExtensionContext) {
             webviewPanel.webview.onDidReceiveMessage(onReceiveMsg)
         }
     })
+}
 
-    context.subscriptions.push(disposable)
+export function activate(context: vscode.ExtensionContext) {
+    const staticDir = path.resolve(context.extensionPath, 'static')
+    if (!fs.existsSync(staticDir)) fs.mkdirSync(staticDir)
+    const workspace = vscode.workspace.workspaceFolders?.[0].uri!
+    const dotFileOutgoing = vscode.Uri.file(
+        path.resolve(staticDir, 'graph_data_outgoing.dot')
+    )
+    const dotFileIncoming = vscode.Uri.file(
+        path.resolve(staticDir, 'graph_data_incoming.dot')
+    )
+    const onReceiveMsg = (type: 'Incoming' | 'Outgoing') => (msg: any) => {
+        const savedName =
+            type === 'Incoming' ? 'call_graph_incoming' : 'call_graph_outgoing'
+        const dotFile = type === 'Incoming' ? dotFileIncoming : dotFileOutgoing
+        const existed = (p: string) =>
+            vscode.window.showErrorMessage(`Already exists.\n${p} `)
+
+        if (msg.command === 'download') {
+            const dir = vscode.workspace
+                .getConfiguration()
+                .get<string>('call-graph.saveDir')
+                ?.replace('${workspace}', workspace.fsPath)
+            let f = dir ? vscode.Uri.file(dir) : workspace
+            if (!fs.existsSync(f.fsPath))
+                fs.mkdirSync(f.fsPath, { recursive: true })
+
+            switch (msg.type) {
+                case 'dot':
+                    f = vscode.Uri.joinPath(f, `${savedName}.dot`)
+                    if (!fs.existsSync(f.fsPath)) {
+                        fs.copyFileSync(dotFile.fsPath, f.fsPath)
+                        vscode.window.showInformationMessage(f.fsPath)
+                    } else existed(f.fsPath)
+                    break
+                case 'svg':
+                    f = vscode.Uri.joinPath(f, `${savedName}.svg`)
+                    if (!fs.existsSync(f.fsPath)) {
+                        fs.writeFileSync(f.fsPath, msg.data)
+                        vscode.window.showInformationMessage(f.fsPath)
+                    } else existed(f.fsPath)
+                    break
+            }
+        }
+    }
+    const incomingDisposable = vscode.commands.registerCommand(
+        'CallGraph.showIncomingCallGraph',
+        async () => {
+            vscode.window.withProgress(
+                getDefaultProgressOptions('Generate call graph'),
+                generateGraph(
+                    'Incoming',
+                    getIncomingCallNode,
+                    dotFileIncoming,
+                    staticDir,
+                    onReceiveMsg('Incoming')
+                )
+            )
+        }
+    )
+    const outgoingDisposable = vscode.commands.registerCommand(
+        'CallGraph.showOutgoingCallGraph',
+        async () => {
+            vscode.window.withProgress(
+                getDefaultProgressOptions('Generate call graph'),
+                generateGraph(
+                    'Outgoing',
+                    getOutgoingCallNode,
+                    dotFileOutgoing,
+                    staticDir,
+                    onReceiveMsg('Outgoing')
+                )
+            )
+        }
+    )
+    registerWebviewPanelSerializer(
+        `CallGraph.previewIncoming`,
+        onReceiveMsg('Incoming')
+    )
+    registerWebviewPanelSerializer(
+        'CallGraph.previewOutgoing',
+        onReceiveMsg('Outgoing')
+    )
+    context.subscriptions.push(incomingDisposable)
+    context.subscriptions.push(outgoingDisposable)
 }

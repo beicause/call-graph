@@ -6,11 +6,12 @@ vscode extension for generate call graph in [graphviz dot language](https://www.
 ## Features
 
 * generate call graph in dot language and preview.
-* save graph as dot or svg file 
+* save graph as dot or svg file
 
 ## Quick start
 1. Open your folder and select a entry function
-2. run `CallGraph.showCallGraph` command using `Ctrl+Shift+P` or context menu
+2. Run `CallGraph.showOutgoingCallGraph` command using `Ctrl+Shift+P` or context menu to show outgoing calls
+3. Or Run `CallGraph.showIncomingCallGraph` command using `Ctrl+Shift+P` or context menu to show incoming calls
 
 ### For more information
 
