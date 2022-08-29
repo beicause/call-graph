@@ -14,7 +14,7 @@ vscode extension for generate call graph in [graphviz dot language](https://www.
 3. Or Run `CallGraph.showIncomingCallGraph` command using `Ctrl+Shift+P` or context menu to show incoming calls
 
 ## How it works
-It dependents `vscode.provideOutgoingCalls` and `vscode.provideIncomingCalls` built-in commands.
+It depends `vscode.provideOutgoingCalls` and `vscode.provideIncomingCalls` built-in commands.
 
 ### For more information
 * [GitHub](https://github.com/beicause/call-graph)
