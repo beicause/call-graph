@@ -8,6 +8,7 @@ import { generateDot } from './dot'
 import { getHtmlContent } from './html'
 import * as path from 'path'
 import * as fs from 'fs'
+import * as pm from 'picomatch'
 
 export const output = vscode.window.createOutputChannel('CallGraph')
 
@@ -15,15 +16,15 @@ const getDefaultProgressOptions = (title: string): vscode.ProgressOptions => {
     return {
         location: vscode.ProgressLocation.Notification,
         title,
-        cancellable: false
+        cancellable: true
     }
 }
 
 const generateGraph = (
     type: 'Incoming' | 'Outgoing',
     callNodeFunction: (
-        rootUri: string,
-        entryItem: vscode.CallHierarchyItem
+        entryItem: vscode.CallHierarchyItem,
+        ignore: (item: vscode.CallHierarchyItem) => boolean
     ) => Promise<CallHierarchyNode>,
     dotFile: vscode.Uri,
     staticDir: string,
@@ -42,10 +43,25 @@ const generateGraph = (
             vscode.window.showErrorMessage(msg)
             throw new Error(msg)
         }
-        const graph = await callNodeFunction(
-            vscode.workspace.workspaceFolders![0].uri.toString(),
-            entry[0]
-        )
+        const workspace = vscode.workspace.workspaceFolders?.[0].uri!
+        let ignoreFile: string | null =
+            vscode.workspace
+                .getConfiguration()
+                .get<string>('call-graph.ignoreFile')
+                ?.replace('${workspace}', workspace.fsPath) ?? null
+
+        if (ignoreFile && !fs.existsSync(ignoreFile)) ignoreFile = null
+        const graph = await callNodeFunction(entry[0], item => {
+            if (ignoreFile === null) return false
+            const patterns = fs
+                .readFileSync(ignoreFile)
+                .toString()
+                .split('\n')
+                .filter(str => str.length > 0)
+                .map(str => path.resolve(workspace.fsPath, str))
+            return pm(patterns)(item.uri.fsPath)
+        })
+
         generateDot(graph, dotFile.fsPath)
 
         const webviewType = `CallGraph.preview${type}`

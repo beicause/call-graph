@@ -45,6 +45,11 @@
                     "type": "string",
                     "default": "${workspace}",
                     "description": "the dir where svg and dot file will be saved"
+                },
+                "call-graph.ignoreFile": {
+                    "type": "string",
+                    "default": "${workspace}/.callgraphignore",
+                    "description": "the file that specific paths should ignore"
                 }
             }
         }
@@ -61,6 +66,7 @@
         "@types/glob": "^7.2.0",
         "@types/mocha": "^9.1.0",
         "@types/node": "14.x",
+        "@types/picomatch": "^2.3.0",
         "@types/vscode": "^1.65.0",
         "@typescript-eslint/eslint-plugin": "^5.16.0",
         "@typescript-eslint/parser": "^5.16.0",
@@ -84,5 +90,8 @@
         "graphviz",
         "call graph",
         "dot"
-    ]
+    ],
+    "dependencies": {
+        "picomatch": "^2.3.1"
+    }
 }
