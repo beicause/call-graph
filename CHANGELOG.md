@@ -13,3 +13,8 @@
 
 - fix svg and dot file exporting on Windows([#3](https://github.com/beicause/call-graph/issues/3))
 - add config `call-graph.saveDir`
+
+## [1.1.2] 2022-8-29
+
+- add incoming call graph
+- add .callgraphignore config
