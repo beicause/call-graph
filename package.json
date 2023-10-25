@@ -92,6 +92,6 @@
         "dot"
     ],
     "dependencies": {
-        "picomatch": "^2.3.1"
+        "ignore": "^5.2.4"
     }
 }
