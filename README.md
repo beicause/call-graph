@@ -15,9 +15,12 @@ vscode extension for generate call graph in [graphviz dot language](https://www.
 4. Add `.callgraphignore` file in your project root directory to ignore some files or folders
 
 ## How it works
-It depends `vscode.provideOutgoingCalls` and `vscode.provideIncomingCalls` built-in commands.
+It depends `vscode.provideOutgoingCalls` and `vscode.provideIncomingCalls` built-in commands( the same with `Show Call Hierarchy` command, not available for some language server ).
 
 ### For more information
+* Also developed by me for preview and edit graphviz file:
+  - [Graphviz Viewer Online](https://graphviz.net)
+  - [Graphviz Viewer in Google Play](https://play.google.com/store/apps/details?id=indie.haozi.gvviewer)
 * [GitHub](https://github.com/beicause/call-graph)
 
 **Enjoy!**
