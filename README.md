@@ -12,6 +12,7 @@ vscode extension for generate call graph in [graphviz dot language](https://www.
 1. Open your folder and select a entry function
 2. Run `CallGraph.showOutgoingCallGraph` command using `Ctrl+Shift+P` or context menu to show outgoing calls
 3. Or Run `CallGraph.showIncomingCallGraph` command using `Ctrl+Shift+P` or context menu to show incoming calls
+4. Add `.callgraphignore` file in your project root directory to ignore some files or folders
 
 ## How it works
 It depends `vscode.provideOutgoingCalls` and `vscode.provideIncomingCalls` built-in commands.

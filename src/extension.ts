@@ -8,7 +8,7 @@ import { generateDot } from './dot'
 import { getHtmlContent } from './html'
 import * as path from 'path'
 import * as fs from 'fs'
-import * as pm from 'picomatch'
+import ignore from 'ignore'
 
 export const output = vscode.window.createOutputChannel('CallGraph')
 
@@ -53,13 +53,12 @@ const generateGraph = (
         if (ignoreFile && !fs.existsSync(ignoreFile)) ignoreFile = null
         const graph = await callNodeFunction(entry[0], item => {
             if (ignoreFile === null) return false
-            const patterns = fs
-                .readFileSync(ignoreFile)
-                .toString()
-                .split('\n')
-                .filter(str => str.length > 0)
-                .map(str => path.resolve(workspace.fsPath, str))
-            return pm(patterns)(item.uri.fsPath)
+            // working in the current workspace
+            if (!item.uri.fsPath.startsWith(workspace.fsPath)) return true
+            const ig = ignore().add(fs.readFileSync(ignoreFile).toString())
+            const itemPath = item.uri.fsPath.replace(`${workspace.fsPath}/`, '')
+            const ignored = ig.test(itemPath).ignored
+            return ignored
         })
 
         generateDot(graph, dotFile.fsPath)
