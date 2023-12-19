@@ -1,6 +1,7 @@
 import { CallHierarchyItem } from 'vscode'
 import * as vscode from 'vscode'
 import { output } from './extension'
+import cloneDeep = require('lodash.clonedeep')
 
 export interface CallHierarchyNode {
     item: CallHierarchyItem
@@ -22,9 +23,9 @@ async function getCallNode(
         const calls:
             | vscode.CallHierarchyOutgoingCall[]
             | vscode.CallHierarchyIncomingCall[] = await vscode.commands.executeCommand(
-            command,
-            node.item
-        )
+                command,
+                node.item
+            )
         for (const call of calls) {
             const next =
                 call instanceof vscode.CallHierarchyOutgoingCall
@@ -35,15 +36,16 @@ async function getCallNode(
                 continue
             }
             let isSkip = false
+            let next2 = showOnlyFileName(next);
             for (const n of nodes) {
-                if (isEqual(n.item, next)) {
-                    output.appendLine('skip, already resolve: ' + next.name)
+                if (isEqual(n.item, next2)) {
+                    output.appendLine('skip, already resolve: ' + next2.name)
                     node.children.push(n)
                     isSkip = true
                 }
             }
             if (isSkip) continue
-            const child = { item: next, children: [] }
+            const child = { item: next2, children: [] }
             node.children.push(child)
             await insertNode(child)
         }
@@ -75,4 +77,13 @@ function isEqual(a: CallHierarchyItem, b: CallHierarchyItem) {
         a.range.start.line === b.range.start.line &&
         a.range.start.character === b.range.start.character
     )
+}
+
+function showOnlyFileName(item: CallHierarchyItem): CallHierarchyItem {
+    let itemClone = cloneDeep(item);
+
+    let uri = itemClone.uri.path.split('/');
+    itemClone.uri = vscode.Uri.file(uri[uri.length - 1]);
+
+    return itemClone
 }
