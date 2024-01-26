@@ -56,7 +56,11 @@ const generateGraph = (
             // working in the current workspace
             if (!item.uri.fsPath.startsWith(workspace.fsPath)) return true
             const ig = ignore().add(fs.readFileSync(ignoreFile).toString())
-            const itemPath = item.uri.fsPath.replace(`${workspace.fsPath}/`, '')
+            var str, itemPath
+            str = `${workspace.fsPath}/`
+            itemPath = item.uri.fsPath.replace(str, '')
+            str = `${workspace.fsPath}\\` // dir format in windows
+            itemPath = itemPath.replace(str, '')
             const ignored = ig.test(itemPath).ignored
             return ignored
         })
