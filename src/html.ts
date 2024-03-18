@@ -17,6 +17,7 @@ export function getHtmlContent(dot?:string){
             <button id="downloadDot">save dot file</button>
             <button id="downloadSvg">save as svg</button>
         </div>
+        <div id="hide" style="display: none;"><div/>
     </body>
     <script>
         (async function () {
@@ -25,12 +26,12 @@ export function getHtmlContent(dot?:string){
             vscode.setState(dot)
             const res =await (await fetch(dot)).text()
             d3.select('#app').graphviz().renderDot(res)
-
-
+            d3.select('#hide').graphviz({zoom:false}).renderDot(res)
 
             d3.select('#downloadSvg').on('click',()=>{
                 const serializer = new XMLSerializer()
-                const svg = serializer.serializeToString(d3.select('svg').node())
+                // The svg in #app may have been scaled or moved, use #hide
+                const svg = serializer.serializeToString(d3.select('#hide>svg').node())
 
                 vscode.postMessage({
                     command: 'download',
