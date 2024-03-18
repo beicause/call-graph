@@ -2,18 +2,17 @@ import { CallHierarchyNode } from "./call"
 import * as fs from 'fs'
 import * as vscode from 'vscode'
 import { isDeepStrictEqual } from "util"
-import * as path from "path"
 import { output } from "./extension"
 
 export function generateDot(graph: CallHierarchyNode,path:string) {
     const dot = new Graph()
-    const root = vscode.workspace.workspaceFolders?.[0].uri.toString()??''
+    const root = vscode.workspace.workspaceFolders?.[0].uri.fsPath??''
     dot.addAttr({ rankdir: "LR" })
     const getNode = (n: CallHierarchyNode) => {
         return {
-            name: `"${n.item.uri}#${n.item.name}@${n.item.range.start.line}:${n.item.range.start.character}"`,
+            name: `"${n.item.uri.fsPath}#${n.item.name}@${n.item.range.start.line}:${n.item.range.start.character}"`,
             attr: { label: n.item.name },
-            subgraph: { name: n.item.uri.toString(), attr: { label: n.item.uri.toString().replace(root,'${workspace}') } },
+            subgraph: { name: n.item.uri.fsPath, attr: { label: n.item.uri.fsPath.replace(root,'${workspace}') } },
             next: []
         } as Node
     }

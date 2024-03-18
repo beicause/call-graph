@@ -114,7 +114,7 @@ export function activate(context: vscode.ExtensionContext) {
             type === 'Incoming' ? 'call_graph_incoming' : 'call_graph_outgoing'
         const dotFile = type === 'Incoming' ? dotFileIncoming : dotFileOutgoing
         const existed = (p: string) =>
-            vscode.window.showErrorMessage(`Already exists.\n${p} `)
+            vscode.window.showErrorMessage(`Already exists, please delete it manually.\n${p} `)
 
         if (msg.command === 'download') {
             const dir = vscode.workspace
