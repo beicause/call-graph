@@ -1,18 +1,19 @@
 # call-graph
 
-![call-graph](https://raw.githubusercontent.com/beicause/call-graph/master/images/call-graph.png)
+![call-graph](./images/call_graph_outgoing.png)
 vscode extension for generate call graph in [graphviz dot language](https://www.graphviz.org/doc/info/lang.html), based on vscode call hierarchy language feature.
 
 ## Features
 
-* generate call graph in dot language and preview.
+* generate call graph in graphviz dot language and preview.
 * save graph as dot or svg file
 
 ## Quick start
 1. Open your folder and select a entry function
-2. Run `CallGraph.showOutgoingCallGraph` command using `Ctrl+Shift+P` or context menu to show outgoing calls
-3. Or Run `CallGraph.showIncomingCallGraph` command using `Ctrl+Shift+P` or context menu to show incoming calls
-4. Add `.callgraphignore` file in your project root directory to ignore some files or folders
+2. Run `CallGraph.showOutgoingCallGraph` command using context menu or `Ctrl+Shift+P` to show outgoing calls
+3. Or Run `CallGraph.showIncomingCallGraph` command using context menu or `Ctrl+Shift+P` to show incoming calls
+4. Click `save dot file` or `save as svg` in the bottom left corner to save the graph
+5. Add `.callgraphignore` file in your project root directory to ignore some files or folders in workspace (the syntax is the same as `.gitignore`)
 
 ## How it works
 It depends `vscode.provideOutgoingCalls` and `vscode.provideIncomingCalls` built-in commands( the same with `Show Call Hierarchy` command, not available for some language server ).
