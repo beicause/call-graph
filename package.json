@@ -2,7 +2,7 @@
     "name": "call-graph",
     "displayName": "Call Graph",
     "description": "call graph for vscode",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "publisher": "LuoZhihao",
     "engines": {
         "vscode": "^1.65.0"

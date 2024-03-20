@@ -1,6 +1,11 @@
 # Change Log
 
-## [1.1.3] 2024-03-18
+## [1.1.5] 2024-03-20
+
+- fix .callgraphignore not working in windows
+- use uri path instead of file system path to fix incorrect displaying '\\' in graph label in windows
+
+## [1.1.4] 2024-03-18
 
 - fix the file path label in graph, now it's the corresponding file system path instead of encoded Uri.
 - now the saved svg fits its original size, not moved or scaled.
