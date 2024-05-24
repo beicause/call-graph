@@ -15,6 +15,9 @@ vscode extension for generate call graph in [graphviz dot language](https://www.
 4. Click `save dot file` or `save as svg` in the bottom left corner to save the graph
 5. Add `.callgraphignore` file in your project root directory to ignore some files or folders in workspace (the syntax is the same as `.gitignore`)
 
+## Extra configuration
+- **Max depth**: You can set the max depth at the `Call-graph: Max Depth` setting in the editor settings session. Note that it applies for both incoming and outgoing call graphs.
+
 ## How it works
 It depends `vscode.provideOutgoingCalls` and `vscode.provideIncomingCalls` built-in commands( the same with `Show Call Hierarchy` command, not available for some language server ).
 
