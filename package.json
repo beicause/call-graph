@@ -50,6 +50,11 @@
                     "type": "string",
                     "default": "${workspace}/.callgraphignore",
                     "description": "the file that specific paths should ignore"
+                },
+                "call-graph.maxDepth": {
+                    "type": "number",
+                    "default": "0",
+                    "description": "the graph max depth. Set to 0 for unlimited depth"
                 }
             }
         }
