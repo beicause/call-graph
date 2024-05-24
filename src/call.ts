@@ -49,7 +49,7 @@ async function getCallNode(
             if (isSkip) continue
             const child = { item: next, children: [] }
             node.children.push(child)
-            await insertNode(child, depth += 1)
+            await insertNode(child, depth + 1)
         }
     }
     const graph = { item: entryItem, children: [] as CallHierarchyNode[] }
