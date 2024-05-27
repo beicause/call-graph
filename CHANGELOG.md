@@ -1,5 +1,8 @@
 # Change Log
 
+## [1.2.0] 2024-05-27
+- add `Call-graph: Max Depth` setting for both incoming and outgoing call graphs.
+
 ## [1.1.5] 2024-03-20
 
 - fix .callgraphignore not working in windows
