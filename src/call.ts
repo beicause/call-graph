@@ -19,24 +19,24 @@ async function getCallNode(
         ? 'vscode.provideOutgoingCalls'
         : 'vscode.provideIncomingCalls'
     const nodes = new Set<CallHierarchyNode>()
-    const insertNode = async (node: CallHierarchyNode, depth=0) => {
+    const insertNode = async (node: CallHierarchyNode, depth = 0) => {
         if (maxDepth > 0 && depth >= maxDepth) return
         output.appendLine('resolve: ' + node.item.name)
         nodes.add(node)
         const calls:
             | vscode.CallHierarchyOutgoingCall[]
             | vscode.CallHierarchyIncomingCall[] = await vscode.commands.executeCommand(
-            command,
-            node.item
-        )
-        for (const call of calls) {
+                command,
+                node.item
+            )
+        await Promise.all(calls.map(call => {
             const next =
                 call instanceof vscode.CallHierarchyOutgoingCall
                     ? call.to
                     : call.from
             if (ignore(next)) {
                 output.appendLine('ignore it in config, ' + next.name)
-                continue
+                return null
             }
             let isSkip = false
             for (const n of nodes) {
@@ -46,11 +46,11 @@ async function getCallNode(
                     isSkip = true
                 }
             }
-            if (isSkip) continue
+            if (isSkip) return null
             const child = { item: next, children: [] }
             node.children.push(child)
-            await insertNode(child, depth + 1)
-        }
+            return insertNode(child, depth + 1)
+        }))
     }
     const graph = { item: entryItem, children: [] as CallHierarchyNode[] }
     await insertNode(graph)
