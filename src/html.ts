@@ -9,6 +9,7 @@ export function getHtmlContent(dot?:string){
         <script src="https://d3js.org/d3.v5.min.js"></script>
         <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
         <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@latest/dist/svg.min.js></script>
     </head>
 
     <body>
@@ -45,6 +46,87 @@ export function getHtmlContent(dot?:string){
                     type:'dot'
                 })
             })
+
+            // --- Styling section ---
+            const BACKGROUND = getEditorColor('--vscode-editor-background');
+            const PRIMARY = getEditorColor('--vscode-editor-keyword');
+            const SECONDARY = 'rgba(64,64,64,1)';
+            const TERCIARY = getEditorColor('--vscode-editor-foreground');
+
+            document.body.style.backgroundColor = BACKGROUND;
+
+            function getEditorColor(property) {
+                return document.getElementsByTagName('html')[0]
+                    .style.getPropertyValue(property);
+            }
+
+            let classMap = {
+                graph: node => {graphClassCallback(node)},
+                node: node => {nodeClassCallback(node)},
+                edge: node => {edgeClassCallback(node)},
+                cluster: node => {clusterClassCallback(node)}
+            }
+
+
+            function clusterClassCallback(parentNode) {
+                const clusterPolygonInstance = parentNode.node.children[1].instance;
+                const clusterTextInstance = parentNode.node.children[2].instance;
+
+                clusterPolygonInstance.stroke(TERCIARY);
+                clusterTextInstance.fill(TERCIARY)
+            }
+
+
+            function graphClassCallback(parentNode) {
+                const nodeOuterPolygonInstance = parentNode.node.children[0].instance;
+                nodeOuterPolygonInstance.fill(BACKGROUND);
+            }
+
+
+            function nodeClassCallback(parentNode) {
+                const nodeEllipseInstance = parentNode.node.children[1].instance;
+                const nodeTextInstance = parentNode.node.children[2].instance;
+                nodeEllipseInstance.fill(PRIMARY);
+                nodeEllipseInstance.stroke(SECONDARY);
+                nodeTextInstance.fill(TERCIARY);
+            }
+
+
+            function edgeClassCallback(parentNode) {
+                const nodeArrowInstance = parentNode.node.children[1].instance;
+                const nodeArrowTipInstance = parentNode.node.children[2].instance;
+                nodeArrowInstance.stroke(TERCIARY);
+                nodeArrowTipInstance.stroke(TERCIARY);
+            }
+
+
+            function applyRestyle(node) {
+                node.node.classList.forEach(domClass => {
+                    classCallback = classMap[domClass];
+                    if (classCallback) classCallback(node);
+                });
+            }
+
+
+            function restyleSvg() {
+                let currentNode;
+
+                const draw = SVG('#app');
+                const bfs = [draw];
+                let i = 0;
+
+                while (i < bfs.length) {
+                    currentNode = bfs[i];
+
+                    currentNode.children().forEach(element => {
+                        bfs.push(element);
+                    });
+                    i += 1;
+                    applyRestyle(currentNode);
+                }
+            }
+
+            restyleSvg();
         })()
     </script>
     <style>
