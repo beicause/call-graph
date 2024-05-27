@@ -1,5 +1,5 @@
-import { CallHierarchyItem } from 'vscode'
 import * as vscode from 'vscode'
+import { CallHierarchyItem } from 'vscode'
 import { output } from './extension'
 
 export interface CallHierarchyNode {
@@ -25,10 +25,38 @@ async function getCallNode(
         nodes.add(node)
         const calls:
             | vscode.CallHierarchyOutgoingCall[]
-            | vscode.CallHierarchyIncomingCall[] = await vscode.commands.executeCommand(
-            command,
-            node.item
-        )
+            | vscode.CallHierarchyIncomingCall[] =
+            await vscode.commands.executeCommand(command, node.item)
+
+        const funcBlock = '.func()'
+        if (calls.length === 0 && node.item.name.length > funcBlock.length) {
+            const subStr = node.item.name.substring(
+                node.item.name.length - funcBlock.length
+            )
+            if (subStr === funcBlock) {
+                let exes: any = await vscode.commands.executeCommand(
+                    'vscode.executeDocumentSymbolProvider',
+                    node.item.uri
+                )
+                for (const exe of exes) {
+                    if (exe.range.contains(node.item.range)) {
+                        let methods: vscode.CallHierarchyItem[] =
+                            await vscode.commands.executeCommand(
+                                'vscode.prepareCallHierarchy',
+                                node.item.uri,
+                                exe.selectionRange.start
+                            )
+                        if (methods.length > 0) {
+                            const child = { item: methods[0], children: [] }
+                            node.children.push(child)
+                            await insertNode(child)
+                        }
+                        break
+                    }
+                }
+            }
+        }
+
         for (const call of calls) {
             const next =
                 call instanceof vscode.CallHierarchyOutgoingCall
