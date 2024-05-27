@@ -12,11 +12,15 @@ async function getCallNode(
     ignore: (item: vscode.CallHierarchyItem) => boolean,
     outgoing: Boolean = true
 ) {
+    const maxDepth = vscode.workspace
+        .getConfiguration()
+        .get<number>('call-graph.maxDepth') || 0
     const command = outgoing
         ? 'vscode.provideOutgoingCalls'
         : 'vscode.provideIncomingCalls'
     const nodes = new Set<CallHierarchyNode>()
-    const insertNode = async (node: CallHierarchyNode) => {
+    const insertNode = async (node: CallHierarchyNode, depth=0) => {
+        if (maxDepth > 0 && depth >= maxDepth) return
         output.appendLine('resolve: ' + node.item.name)
         nodes.add(node)
         const calls:
@@ -45,7 +49,7 @@ async function getCallNode(
             if (isSkip) continue
             const child = { item: next, children: [] }
             node.children.push(child)
-            await insertNode(child)
+            await insertNode(child, depth + 1)
         }
     }
     const graph = { item: entryItem, children: [] as CallHierarchyNode[] }
