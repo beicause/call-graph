@@ -25,7 +25,7 @@ export function getHtmlContent(dot?:string){
             const dot='${dot}'
             vscode.setState(dot)
             const res = await (await fetch(dot)).text()
-            d3.select('#app').graphviz().renderDot(res, restyleSvg)
+            const gv = d3.select('#app').graphviz().renderDot(res, restyleSvg)
 
             d3.select('#downloadSvg').on('click',()=>{
                 const serializer = new XMLSerializer()
