@@ -84,7 +84,7 @@
         "url": "https://github.com/beicause/call-graph.git"
     },
     "license": "Apache",
-    "icon": "images/call_graph_outgoing.png",
+    "icon": "images/icon.webp",
     "bugs": {
         "url": "https://github.com/beicause/call-graph/issues"
     },
