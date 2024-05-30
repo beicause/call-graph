@@ -21,6 +21,9 @@ You can configure `ignoreFile`(.callgraphignore by default), `maxDepth`. See the
 ## How it works
 It depends `vscode.provideOutgoingCalls` and `vscode.provideIncomingCalls` built-in commands( the same with `Show Call Hierarchy` command, not available for some language server ).
 
+## Changelog
+See [CHANGELOG.md](./CHANGELOG.md).
+
 ## For more information
 * Also developed by me for preview and edit graphviz file:
   - [Graphviz Viewer Online](https://graphviz.net)
