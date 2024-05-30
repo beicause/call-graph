@@ -1,7 +1,12 @@
 # Change Log
 
+## [1.2.1] 2024-05-30
+- `call-graph.saveDir` setting is removed, replaced by showing a save dialog.
+- beautify the save buttons in preview panel.
+- update the extension icon.
+
 ## [1.2.0] 2024-05-27
-- add `Call-graph: Max Depth` setting for both incoming and outgoing call graphs.
+- add `call-graph.maxDepth` setting for both incoming and outgoing call graphs.
 
 ## [1.1.5] 2024-03-20
 
