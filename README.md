@@ -16,7 +16,7 @@ vscode extension for generate call graph in [graphviz dot language](https://www.
 5. Add `.callgraphignore` file in your project root directory to ignore some files or folders in workspace (the syntax is the same as `.gitignore`)
 
 ## Configuration
-You can configure `ignoreFile`(.callgraphignore by default), `maxDepth` and `saveDir` for svg or dot in settings. See the descriptions in setting.
+You can configure `ignoreFile`(.callgraphignore by default), `maxDepth`. See the descriptions in setting.
 
 ## How it works
 It depends `vscode.provideOutgoingCalls` and `vscode.provideIncomingCalls` built-in commands( the same with `Show Call Hierarchy` command, not available for some language server ).

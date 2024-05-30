@@ -41,11 +41,6 @@
         "configuration": {
             "title": "CallGraph",
             "properties": {
-                "call-graph.saveDir": {
-                    "type": "string",
-                    "default": "${workspace}",
-                    "description": "the dir where svg and dot file will be saved"
-                },
                 "call-graph.ignoreFile": {
                     "type": "string",
                     "default": "${workspace}/.callgraphignore",

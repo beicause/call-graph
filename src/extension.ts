@@ -113,34 +113,18 @@ export function activate(context: vscode.ExtensionContext) {
         const savedName =
             type === 'Incoming' ? 'call_graph_incoming' : 'call_graph_outgoing'
         const dotFile = type === 'Incoming' ? dotFileIncoming : dotFileOutgoing
-        const existed = (p: string) =>
-            vscode.window.showErrorMessage(`Already exists, please delete it manually.\n${p} `)
 
         if (msg.command === 'download') {
-            const dir = vscode.workspace
-                .getConfiguration()
-                .get<string>('call-graph.saveDir')
-                ?.replace('${workspace}', workspace.fsPath)
-            let f = dir ? vscode.Uri.file(dir) : workspace
-            if (!fs.existsSync(f.fsPath))
-                fs.mkdirSync(f.fsPath, { recursive: true })
-
-            switch (msg.type) {
-                case 'dot':
-                    f = vscode.Uri.joinPath(f, `${savedName}.dot`)
-                    if (!fs.existsSync(f.fsPath)) {
-                        fs.copyFileSync(dotFile.fsPath, f.fsPath)
-                        vscode.window.showInformationMessage(f.fsPath)
-                    } else existed(f.fsPath)
-                    break
-                case 'svg':
-                    f = vscode.Uri.joinPath(f, `${savedName}.svg`)
-                    if (!fs.existsSync(f.fsPath)) {
-                        fs.writeFileSync(f.fsPath, msg.data)
-                        vscode.window.showInformationMessage(f.fsPath)
-                    } else existed(f.fsPath)
-                    break
+            const saveFunc = async (fileType: "dot" | "svg") => {
+                const f = await vscode.window.showSaveDialog({
+                    filters: fileType === "svg" ? { "Image": ["svg"] } : { "Graphviz": ["dot", "gv"] },
+                    defaultUri: vscode.Uri.joinPath(workspace, `${savedName}.${fileType}`)
+                })
+                if (!f) return
+                fs.copyFileSync(dotFile.fsPath, f.fsPath)
+                vscode.window.showInformationMessage("Call Graph file saved: " + f.fsPath)
             }
+            saveFunc(msg.type)
         }
     }
     const incomingDisposable = vscode.commands.registerCommand(
