@@ -13,11 +13,10 @@ export function getHtmlContent(dot?:string){
 
     <body>
         <div id="app"></div>
-        <div class="download">
-            <button id="downloadDot">save dot file</button>
-            <button id="downloadSvg">save as svg</button>
+        <div class="btn-container">
+            <button class="btn" id="downloadDot">save dot file</button>
+            <button class="btn" id="downloadSvg">save as svg</button>
         </div>
-        <div id="hide" style="display: none;"><div/>
     </body>
     <script>
         (async function () {
@@ -25,14 +24,13 @@ export function getHtmlContent(dot?:string){
             const dot='${dot}'
             vscode.setState(dot)
             const res =await (await fetch(dot)).text()
-            d3.select('#app').graphviz().renderDot(res)
-            d3.select('#hide').graphviz({zoom:false}).renderDot(res)
+            const gv = d3.select('#app').graphviz().renderDot(res)
 
             d3.select('#downloadSvg').on('click',()=>{
                 const serializer = new XMLSerializer()
-                // The svg in #app may have been scaled or moved, use #hide
-                const svg = serializer.serializeToString(d3.select('#hide>svg').node())
-
+                // Reset it before saving since SVG may be zoomed.
+                gv.resetZoom()
+                const svg = serializer.serializeToString(d3.select('#app>svg').node())
                 vscode.postMessage({
                     command: 'download',
                     type:'svg',
@@ -48,9 +46,26 @@ export function getHtmlContent(dot?:string){
         })()
     </script>
     <style>
-        .download{
+        .btn-container{
             position: fixed;
-            bottom: 0;
+            bottom: 8px;
+        }
+        .btn {
+            display: inline-block;
+            font-weight: 400;
+            color: #212529;
+            text-align: center;
+            border: 1px solid transparent;
+            padding: .300rem .60rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: .25rem;
+            color: #fff;
+            background-color: #007bff;
+        }
+        .btn:hover{
+              background-color: #0069d9;
+
         }
     <style/>
     </html>`
