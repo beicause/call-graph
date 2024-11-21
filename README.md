@@ -26,7 +26,6 @@ See [CHANGELOG.md](./CHANGELOG.md).
 
 ## For more information
 * Also developed by me for preview and edit graphviz file:
-  - [Graphviz Viewer Online](https://graphviz.net)
   - [Graphviz Viewer in Google Play](https://play.google.com/store/apps/details?id=indie.haozi.gvviewer)
 * [GitHub](https://github.com/beicause/call-graph)
 
