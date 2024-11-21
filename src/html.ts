@@ -19,12 +19,23 @@ export function getHtmlContent(dot?:string){
         </div>
     </body>
     <script>
+        function attributer(datum) {
+            const selection = d3.select(this)
+            if (datum.tag == "svg") {
+                const width = window.innerWidth
+                const height = window.innerHeight
+                datum.attributes.width = width + "pt"
+                datum.attributes.height = height + "pt"
+                datum.attributes.viewBox = [0, 0, width, height].join(" ")
+            }
+        }
+
         (async function () {
             const vscode = acquireVsCodeApi()
             const dot='${dot}'
             vscode.setState(dot)
             const res =await (await fetch(dot)).text()
-            const gv = d3.select('#app').graphviz().renderDot(res)
+            const gv = d3.select('#app').graphviz().renderDot(res).attributer(attributer)
 
             d3.select('#downloadSvg').on('click',()=>{
                 const serializer = new XMLSerializer()
