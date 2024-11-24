@@ -33,9 +33,9 @@ export function getHtmlContent(dot?:string){
             const dot='${dot}'
             vscode.setState(dot)
             const res = await (await fetch(dot)).text()
-            const styledDot = res.replaceAll('$backgroundColor', BACKGROUND)
-                .replaceAll('$primaryColor', PRIMARY)
-                .replaceAll('$secondaryColor', SECONDARY)
+            const styledDot = res.replaceAll('$callGraphBackgroundColor', BACKGROUND)
+                .replaceAll('$callGraphPrimaryColor', PRIMARY)
+                .replaceAll('$callGraphSecondaryColor', SECONDARY)
             const gv = d3.select('#app').graphviz().renderDot(styledDot)
 
             d3.select('#downloadSvg').on('click',()=>{

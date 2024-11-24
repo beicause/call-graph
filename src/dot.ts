@@ -11,7 +11,7 @@ export function generateDot(graph: CallHierarchyNode, path: string) {
     const getNode = (n: CallHierarchyNode) => {
         return {
             name: `"${n.item.uri.path}#${n.item.name}@${n.item.range.start.line}:${n.item.range.start.character}"`,
-            attr: { label: n.item.name, color: '$secondaryColor', fillcolor: '$primaryColor', style: 'filled', fontcolor: '$secondaryColor' },
+            attr: { label: n.item.name, color: '$callGraphSecondaryColor', fillcolor: '$callGraphPrimaryColor', style: 'filled', fontcolor: '$callGraphSecondaryColor' },
             subgraph: { name: n.item.uri.path, attr: { label: n.item.uri.path.replace(root, '${workspace}') } },
             next: []
         } as Node
@@ -68,9 +68,9 @@ class Graph {
     constructor(title?: string) {
         this._dot = (true ? 'digraph' : 'graph')
             + ` ${title ?? ''} {\n`
-            + 'bgcolor="$backgroundColor"\n'
-            + 'color="$secondaryColor"\n'
-            + 'fontcolor="$secondaryColor"\n'
+            + 'bgcolor="$callGraphBackgroundColor"\n'
+            + 'color="$callGraphSecondaryColor"\n'
+            + 'fontcolor="$callGraphSecondaryColor"\n'
     }
     addAttr(attr: Attr) {
         this._dot += this.getAttr(attr, true)
@@ -90,7 +90,7 @@ class Graph {
                     if (child.subgraph) this.insertToSubgraph(child.subgraph, child.name + ' ')
                     return child.name + this.getAttr(child.attr)
                 }).join(' ')
-                s += `{${name}} -> {${children}} [color="$secondaryColor"]\n`
+                s += `{${name}} -> {${children}} [color="$callGraphSecondaryColor"]\n`
             }
             else s += name + '\n'
             this._dot += s
