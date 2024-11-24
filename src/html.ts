@@ -19,12 +19,24 @@ export function getHtmlContent(dot?:string){
         </div>
     </body>
     <script>
+        function getEditorColor(property) {
+            return document.getElementsByTagName('html')[0]
+                .style.getPropertyValue(property);
+        }
         (async function () {
+           // --- Styling section ---
+            const BACKGROUND = getEditorColor('--vscode-editor-background');
+            const PRIMARY = getEditorColor('--vscode-list-activeSelectionBackground');
+            const SECONDARY = getEditorColor('--vscode-editor-foreground');    
+
             const vscode = acquireVsCodeApi()
             const dot='${dot}'
             vscode.setState(dot)
-            const res =await (await fetch(dot)).text()
-            const gv = d3.select('#app').graphviz().renderDot(res)
+            const res = await (await fetch(dot)).text()
+            const styledDot = res.replaceAll('$backgroundColor', BACKGROUND)
+                .replaceAll('$primaryColor', PRIMARY)
+                .replaceAll('$secondaryColor', SECONDARY)
+            const gv = d3.select('#app').graphviz().renderDot(styledDot)
 
             d3.select('#downloadSvg').on('click',()=>{
                 const serializer = new XMLSerializer()
