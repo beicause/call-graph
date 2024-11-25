@@ -1,3 +1,4 @@
+.github/**
 .vscode/**
 .vscode-test/**
 src/**
@@ -11,3 +12,5 @@ vsc-extension-quickstart.md
 **/*.ts
 .history
 static/*.dot
+pnpm-lock.yaml
+eslint.config.mjs
