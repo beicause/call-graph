@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.2.2] 2024-11-25
+
+-   fix the issue that svg is not saved correctly.
+-   use proper size and view box when saving as svg.
+
 ## [1.2.1] 2024-05-30
 
 -   `call-graph.saveDir` setting is removed, replaced by showing a save dialog.
