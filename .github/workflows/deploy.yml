@@ -1,37 +1,37 @@
 name: 🎉 Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+    push:
+        tags:
+            - 'v*'
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-    - name: Install Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 18.x
+            - name: Install Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 18.x
 
-    - name: Run npm install
-      run: npm install
+            - name: Run npm install
+              run: npm install
 
-    - name: Run vsce package
-      run: mkdir -p out/vsix && npm exec vsce package -- -o out/vsix/
+            - name: Run vsce package
+              run: mkdir -p out/vsix && npm exec vsce package -- -o out/vsix/
 
-    - name: Create Github Release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: out/vsix/*.vsix
+            - name: Create Github Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: out/vsix/*.vsix
 
-    - name: Publish to VS Code Marketplace
-      run: npm run deploy
-      env:
-        VSCE_PAT: ${{ secrets.VSCE_PAT }}
+            - name: Publish to VS Code Marketplace
+              run: npm run deploy
+              env:
+                  VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
-    - name: Publish to Open VSX
-      run: npm run deploy_ovsx -- --pat ${{ secrets.OVSX_PAT }}
+            - name: Publish to Open VSX
+              run: npm run deploy_ovsx -- --pat ${{ secrets.OVSX_PAT }}

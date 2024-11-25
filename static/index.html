@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Call Graph</title>
+        <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+        <script
+            src="https://unpkg.com/@hpcc-js/wasm@2/dist/graphviz.umd.js"
+            type="javascript/worker"
+        ></script>
+        <script src="https://unpkg.com/d3-graphviz@5/build/d3-graphviz.js"></script>
+    </head>
+
+    <body>
+        <div id="app"></div>
+        <div class="btn-container">
+            <button class="btn" id="downloadDot">save dot file</button>
+            <button class="btn" id="downloadSvg">save as svg</button>
+        </div>
+    </body>
+    <script>
+        function updateSvgViewBox() {
+            const width = window.innerWidth
+            const height = window.innerHeight
+
+            d3.select('#app>svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('viewBox', [0, 0, width, height].join(' '))
+        }
+
+        ;(async function () {
+            const vscode = acquireVsCodeApi()
+            // Inject dot file uri: $DOT_FILE_URI
+            vscode.setState('$DOT_FILE_URI')
+            const dot = await (await fetch('$DOT_FILE_URI')).text()
+            const gv = d3
+                .select('#app')
+                .graphviz()
+                .renderDot(dot, () => {
+                    d3.select(window).on('resize.updatesvg', updateSvgViewBox)
+                    updateSvgViewBox()
+                })
+            d3.select('#downloadSvg').on('click', () => {
+                gv.resetZoom()
+                const svgElement = d3.select('#app>svg')
+                const box = svgElement.node().getBBox()
+                svgElement
+                    .attr('width', box.width)
+                    .attr('height', box.height)
+                    .attr('viewBox', [0, 0, box.width, box.height].join(' '))
+
+                const serializer = new XMLSerializer()
+                const svg = serializer.serializeToString(svgElement.node())
+
+                updateSvgViewBox()
+                vscode.postMessage({
+                    command: 'download',
+                    type: 'svg',
+                    data: svg,
+                })
+            })
+            d3.select('#downloadDot').on('click', () => {
+                vscode.postMessage({
+                    command: 'download',
+                    type: 'dot',
+                    data: dot,
+                })
+            })
+        })()
+    </script>
+    <style>
+        .btn-container {
+            position: fixed;
+            bottom: 8px;
+        }
+
+        .btn {
+            display: inline-block;
+            font-weight: 400;
+            color: #212529;
+            text-align: center;
+            border: 1px solid transparent;
+            padding: 0.3rem 0.6rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: 0.25rem;
+            color: #fff;
+            background-color: #007bff;
+        }
+
+        .btn:hover {
+            background-color: #0069d9;
+        }
+    </style>
+</html>

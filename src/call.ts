@@ -10,11 +10,12 @@ export interface CallHierarchyNode {
 async function getCallNode(
     entryItem: CallHierarchyItem,
     ignore: (item: vscode.CallHierarchyItem) => boolean,
-    outgoing: Boolean = true
+    outgoing: boolean = true,
 ) {
-    const maxDepth = vscode.workspace
-        .getConfiguration()
-        .get<number>('call-graph.maxDepth') || 0
+    const maxDepth =
+        vscode.workspace
+            .getConfiguration()
+            .get<number>('call-graph.maxDepth') || 0
     const command = outgoing
         ? 'vscode.provideOutgoingCalls'
         : 'vscode.provideIncomingCalls'
@@ -25,32 +26,32 @@ async function getCallNode(
         nodes.add(node)
         const calls:
             | vscode.CallHierarchyOutgoingCall[]
-            | vscode.CallHierarchyIncomingCall[] = await vscode.commands.executeCommand(
-                command,
-                node.item
-            )
-        await Promise.all(calls.map(call => {
-            const next =
-                call instanceof vscode.CallHierarchyOutgoingCall
-                    ? call.to
-                    : call.from
-            if (ignore(next)) {
-                output.appendLine('ignore it in config, ' + next.name)
-                return null
-            }
-            let isSkip = false
-            for (const n of nodes) {
-                if (isEqual(n.item, next)) {
-                    output.appendLine('skip, already resolve: ' + next.name)
-                    node.children.push(n)
-                    isSkip = true
+            | vscode.CallHierarchyIncomingCall[] =
+            await vscode.commands.executeCommand(command, node.item)
+        await Promise.all(
+            calls.map(call => {
+                const next =
+                    call instanceof vscode.CallHierarchyOutgoingCall
+                        ? call.to
+                        : call.from
+                if (ignore(next)) {
+                    output.appendLine('ignore it in config, ' + next.name)
+                    return null
                 }
-            }
-            if (isSkip) return null
-            const child = { item: next, children: [] }
-            node.children.push(child)
-            return insertNode(child, depth + 1)
-        }))
+                let isSkip = false
+                for (const n of nodes) {
+                    if (isCallHierarchyItemEqual(n.item, next)) {
+                        output.appendLine('skip, already resolve: ' + next.name)
+                        node.children.push(n)
+                        isSkip = true
+                    }
+                }
+                if (isSkip) return null
+                const child = { item: next, children: [] }
+                node.children.push(child)
+                return insertNode(child, depth + 1)
+            }),
+        )
     }
     const graph = { item: entryItem, children: [] as CallHierarchyNode[] }
     await insertNode(graph)
@@ -59,19 +60,19 @@ async function getCallNode(
 
 export async function getIncomingCallNode(
     entryItem: CallHierarchyItem,
-    ignore: (item: vscode.CallHierarchyItem) => boolean
+    ignore: (item: vscode.CallHierarchyItem) => boolean,
 ) {
     return await getCallNode(entryItem, ignore, false)
 }
 
 export async function getOutgoingCallNode(
     entryItem: CallHierarchyItem,
-    ignore: (item: vscode.CallHierarchyItem) => boolean
+    ignore: (item: vscode.CallHierarchyItem) => boolean,
 ) {
     return await getCallNode(entryItem, ignore, true)
 }
 
-function isEqual(a: CallHierarchyItem, b: CallHierarchyItem) {
+function isCallHierarchyItemEqual(a: CallHierarchyItem, b: CallHierarchyItem) {
     return (
         a.name === b.name &&
         a.kind === b.kind &&
