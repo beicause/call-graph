@@ -1,6 +1,12 @@
 # Change Log
 
+## [1.2.3] 2024-12-19
+
+-   fix the issue that can't run any commands from v1.2.2 ([#31](https://github.com/beicause/call-graph/issues/31)).
+
 ## [1.2.2] 2024-11-25
+
+**IMPORTANT:** This version is not working and can't run any commands ([#31](https://github.com/beicause/call-graph/issues/31)), please update to v1.2.3.
 
 -   fix the issue that svg is not saved correctly.
 -   use proper size and view box when saving as svg.
