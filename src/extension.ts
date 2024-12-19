@@ -23,7 +23,8 @@ const getHtmlContent = (staticDir: string, dotFileUri: string) => {
     return fs
         .readFileSync(path.resolve(staticDir, 'index.html'))
         .toString()
-        .replaceAll('$DOT_FILE_URI', dotFileUri)
+        .split('$DOT_FILE_URI')
+        .join(dotFileUri)
 }
 const generateGraph = (
     type: 'Incoming' | 'Outgoing',
