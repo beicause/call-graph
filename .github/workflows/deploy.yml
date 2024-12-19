@@ -39,4 +39,4 @@ jobs:
                   VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
             - name: Publish to Open VSX
-              run: pnpm run deploy_ovsx -- --pat ${{ secrets.OVSX_PAT }}
+              run: pnpm run deploy_ovsx --pat ${{ secrets.OVSX_PAT }}
